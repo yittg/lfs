@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"github.com/go-logr/zapr"
@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func setLogger() {
+func SetLogger() {
 	if isDevelopment() {
 		setDevelopmentLogger()
 	} else {
