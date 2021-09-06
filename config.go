@@ -1,6 +1,7 @@
 package lfs
 
 import (
+	"errors"
 	"path/filepath"
 
 	log "github.com/yittg/golog"
@@ -22,9 +23,22 @@ func (c *Configuration) SetDefaults() {
 		c.ServePort = 8080
 	}
 
-	if path, err := filepath.Abs(c.Path); err != nil {
-		log.Fatal(err, "Failed to resolve absolute workspace directory", "path", c.Path)
-	} else {
-		c.Path = path
+	if err := c.PreparePath(); err != nil {
+		log.Fatal(err, "Failed to prepare workspace directory", "path", c.Path)
 	}
+}
+
+func (c *Configuration) PreparePath() error {
+	if path, err := filepath.Abs(c.Path); err != nil {
+		return err
+	} else {
+		c.Path = filepath.Clean(path)
+	}
+	if c.Path == "/" {
+		return errors.New("should not use root dir")
+	}
+	if err := CreateDir(c.Path); err != nil {
+		return err
+	}
+	return nil
 }

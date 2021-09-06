@@ -138,13 +138,20 @@ func FileFilterWrapper(fn func(ctx *FilterContext) error) FilterFunc {
 
 func createFile(fullPath string) (*os.File, error) {
 	dir := filepath.Dir(fullPath)
-	if err := NewStater().NotExistOk().ExpectDir().Stat(dir); err != nil {
-		return nil, err
-	}
-	if err := os.MkdirAll(dir, 0777); err != nil {
+	if err := CreateDir(dir); err != nil {
 		return nil, err
 	}
 	return os.Create(fullPath)
+}
+
+func CreateDir(dir string) error {
+	if err := NewStater().NotExistOk().ExpectDir().Stat(dir); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(dir, 0777); err != nil {
+		return err
+	}
+	return nil
 }
 
 func SubOf(parent, path string) bool {
